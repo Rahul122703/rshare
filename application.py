@@ -28,7 +28,7 @@ global_otp = None
 choose_password = 0
 wrong_otp = 0
 user_content_page = None
-on_general_files_upload = 0
+on_general_files_upload = 0 
 
 #1FUNCTIONS
 def send_mail(receiver,body,sender = os.getenv('EMAIL')):
