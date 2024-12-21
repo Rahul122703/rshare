@@ -1,9 +1,0 @@
-Flask
-Jinja2
-requests
-Werkzeug
-flask_sqlalchemy
-SQLAlchemy
-gunicorn
-psycopg2-binary
-flask_login

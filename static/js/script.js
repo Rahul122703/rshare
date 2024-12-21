@@ -67,22 +67,17 @@ if (body_width < 400) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-  var summernote1 = document.getElementById("summernote1");
-  var summernote2 = document.getElementById("summernote2");
+  let fixed_height =
+    document.querySelector("body").getBoundingClientRect().height - 180;
 
-  if (summernote1) {
-    $(summernote1).summernote({
-      placeholder: "UPLOAD...",
-      minHeight: fixed_height,
-      maxHeight: fixed_height,
-    });
-  }
-
-  if (summernote2) {
-    $(summernote2).summernote({
-      placeholder: "RECEIVE...",
-      minHeight: fixed_height,
-      maxHeight: fixed_height,
-    });
-  }
+  ["summernote2", "summernote1"].forEach((id) => {
+    let element = document.getElementById(id);
+    if (element) {
+      $(element).summernote({
+        placeholder: id === "summernote2" ? "UPLOAD..." : "RECEIVE...",
+        minHeight: fixed_height,
+        maxHeight: fixed_height,
+      });
+    }
+  });
 });

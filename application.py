@@ -1,5 +1,8 @@
-nfrom flask import Flask, render_template,request,url_for,redirect,jsonify,send_file
-from flask_login import LoginManager,UserMixin,login_user,logout_user
+from flask import Flask, render_template,request,url_for,redirect,jsonify,send_file
+=======
+from flask import Flask, render_template,request,url_for,redirect,jsonify,send_file
+>>>>>>> main
+rom flask_login import LoginManager,UserMixin,login_user,logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask_sqlalchemy import SQLAlchemy
