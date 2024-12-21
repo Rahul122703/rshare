@@ -1,6 +1,5 @@
 from flask import Flask, render_template,request,url_for,redirect,jsonify,send_file,session
 from flask_login import LoginManager,UserMixin,login_user,logout_user
-from flask_session import Session
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask_sqlalchemy import SQLAlchemy
@@ -88,24 +87,25 @@ def get_file(file_id,file_list):
         if file.id == file_id:
             return file.name
         
-app = Flask(__name__)
+application = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///data.db"
-app.config['SECRET_KEY'] = "rahulsharma"
-app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads') 
+application.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///data.db"
+application.config['SECRET_KEY'] = "rahulsharma"
+application.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads') 
 
-app.config['SESSION_TYPE'] = 'filesystem'  # Use the filesystem for session storage
-app.config['SESSION_FILE_DIR'] = os.path.join(os.getcwd(), 'flask_session')  # Directory where sessions will be stored
-app.config['SESSION_PERMANENT'] = False  # Session will not be permanent
-app.config['SESSION_USE_SIGNER'] = True  # Sign the session ID cookie
+application.config['SESSION_TYPE'] = 'filesystem'  # Use the filesystem for session storage
+application.config['SESSION_FILE_DIR'] = os.path.join(os.getcwd(), 'flask_session')  # Directory where sessions will be stored
+application.config['SESSION_PERMANENT'] = False  # Session will not be permanent
+application.config['SESSION_USE_SIGNER'] = True  # Sign the session ID cookie
+application.config['SESSION_USE_SIGNER'] = True  # Sign session cookie to avoid tamperin
 
-Session(app)
+Session(application)
 # Ensure the upload directory exists
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
+if not os.path.exists(application.config['UPLOAD_FOLDER']):
+    os.makedirs(application.config['UPLOAD_FOLDER'])
 
 login_manager =  LoginManager()
-login_manager.init_app(app)
+login_manager.init_app(application)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -137,7 +137,7 @@ class CurrentUser:
 class Base(DeclarativeBase):
     pass
 database = SQLAlchemy(model_class = Base)
-database.init_app(app)
+database.init_app(application)
 
 
 class Content(database.Model):
@@ -163,7 +163,7 @@ class User(UserMixin, database.Model):
     contents = relationship('Content', back_populates='user')
     
    
-with app.app_context():
+with application.app_context():
     database.create_all()
 
 
@@ -177,7 +177,7 @@ def admin_only(function):
     return wrapper    
     
 
-@app.context_processor
+@application.context_processor
 def common_variable():
     global current_user
     return dict(choose_password = choose_password,
@@ -189,7 +189,7 @@ def common_variable():
                 wrong_otp = 0,
                 on_general_files_upload = 0)
 
-@app.route("/")
+@application.route("/")
 def index():
     global forgot_password_email_username,current_user,open_otp_form,show_login_form,global_otp,choose_password,wrong_otp,current_page,is_admin
     
@@ -205,10 +205,12 @@ def index():
     wrong_otp = 0
     
     print("--------------index route is running---------")
+    if "username" not in session:
+        current_user = None
     return render_template("index.html")
 
 
-@app.route("/upload",methods = ['POST','GET'])
+@application.route("/upload",methods = ['POST','GET'])
 def upload():
     print("--------------upload route is running---------")
     global current_user
@@ -229,7 +231,7 @@ def upload():
             return render_template("index.html")
     return render_template("index.html")
 
-@app.route("/receive",methods = ['POST','GET'])
+@application.route("/receive",methods = ['POST','GET'])
 def receive():
     print("--------------receive route is running---------")
     content_object =database.session.execute(database.select(Content).where(Content.user_id == 0)).scalars().all()[-1]
@@ -237,7 +239,7 @@ def receive():
 
 
 
-@app.route("/table_data")
+@application.route("/table_data")
 def table_data():
     print("--------------table_data route is running---------")
     global current_page,small_upload_button_page,user_content_page
@@ -255,7 +257,7 @@ def table_data():
     return render_template("table_data.html", data = json_data )
 
 
-@app.route("/check_for_admin")
+@application.route("/check_for_admin")
 def check_for_admin():
     print("--------------check_for_admin route is running---------")
     global is_admin ,on_general_files_upload 
@@ -263,7 +265,7 @@ def check_for_admin():
     on_general_files_upload = 1
     return redirect(url_for("table_data")) 
 
-@app.route("/delete_content/<int:content_id>")
+@application.route("/delete_content/<int:content_id>")
 def delete_content(content_id):
     print("--------------delete_content route is running---------")
     global user_content_page
@@ -273,7 +275,7 @@ def delete_content(content_id):
     return redirect(url_for(user_content_page)) 
 
 
-@app.route("/full_content/<int:content_id>",methods = ['POST','GET'])
+@application.route("/full_content/<int:content_id>",methods = ['POST','GET'])
 def full_content(content_id):
     print("--------------full_content route is running---------")
     global current_page,small_upload_button_page,current_user
@@ -283,14 +285,14 @@ def full_content(content_id):
     return render_template("full_content.html",content_data = chosen_content)
 
 
-@app.route("/back")
+@application.route("/back")
 def back_button():
     print("--------------back_button route is running---------")
     global on_general_files_upload,current_page
     on_general_files_upload = 0
     return redirect(url_for(current_page))
 
-@app.route('/get_json_data_content', methods=['GET'])
+@application.route('/get_json_data_content', methods=['GET'])
 def get_data():
     print("--------------get_data route is running---------")
     
@@ -305,7 +307,7 @@ def get_data():
     
     return jsonify(data)
 
-@app.route('/get_json_data_user', methods=['GET']) #123
+@application.route('/get_json_data_user', methods=['GET']) #123
 def get_data_user():
     print("--------------get_data_user route is running---------")
     
@@ -320,7 +322,7 @@ def get_data_user():
     
     return jsonify(data)
 
-@app.route("/Edit/<int:content_id>",methods = ['POST','GET'])
+@application.route("/Edit/<int:content_id>",methods = ['POST','GET'])
 def edit_content(content_id):
     print("--------------edit_content route is running---------")
     chosen_content = database.session.execute(database.select(Content).where(Content.id == content_id)).scalar()
@@ -330,7 +332,7 @@ def edit_content(content_id):
     database.session.commit()
     return render_template("full_content.html",content_data = chosen_content)
 
-@app.route("/small_upload/<int:content_id>",methods = ['POST','GET'])
+@application.route("/small_upload/<int:content_id>",methods = ['POST','GET'])
 def small_upload(content_id):
     global small_upload_button_page
     
@@ -359,7 +361,7 @@ def small_upload(content_id):
     return render_template("full_content.html",content_data = chosen_content)
 
 
-@app.route("/user_small_upload/<int:content_id>",methods = ['POST','GET'])
+@application.route("/user_small_upload/<int:content_id>",methods = ['POST','GET'])
 def user_small_upload(content_id): #111
     global small_upload_button_page,current_user
     
@@ -388,7 +390,7 @@ def user_small_upload(content_id): #111
     return render_template("full_content.html",content_data = chosen_content)
 
 
-@app.route('/register',methods = ['GET','POST'])
+@application.route('/register',methods = ['GET','POST'])
 def register():
     print("--------------register route is running---------")
     global current_user
@@ -411,7 +413,7 @@ def register():
         return render_template('index.html')
     return render_template('register.html',emails = emails,usernames = usernames)
 
-@app.route('/login',methods = ['GET','POST'])
+@application.route('/login',methods = ['GET','POST'])
 def login():
     print("--------------login route is running---------")
     global current_user,forgot_password_email_username,wrong_password
@@ -435,7 +437,7 @@ def login():
     return render_template('index.html')
 
 
-@app.route('/my_profile')
+@application.route('/my_profile')
 def my_profile(): #222
     print("--------------my_profile route is running---------")
     global current_user,current_page,user_content_page,small_upload_button_page
@@ -453,7 +455,7 @@ def my_profile(): #222
     return render_template('user_data.html',table_contents = json_data)
 
 
-@app.route('/logout')
+@application.route('/logout')
 def logout():
     print("--------------logout route is running---------")
     global current_user
@@ -464,7 +466,7 @@ def logout():
 
 
 
-@app.route('/upload_file', methods=['POST'])
+@application.route('/upload_file', methods=['POST'])
 def upload_file():
     print("--------------upload_file route is running---------")
     global current_user
@@ -480,9 +482,9 @@ def upload_file():
     if file:
         # Determine folder path: user-specific or general folder
         if current_user:
-            user_folder = os.path.join(app.config['UPLOAD_FOLDER'], current_user.username)
+            user_folder = os.path.join(application.config['UPLOAD_FOLDER'], current_user.username)
         else:
-            user_folder = os.path.join(app.config['UPLOAD_FOLDER'], 'general')
+            user_folder = os.path.join(application.config['UPLOAD_FOLDER'], 'general')
 
         # Ensure the folder exists
         os.makedirs(user_folder, exist_ok=True)  # Create folder if it doesn't exist
@@ -497,7 +499,7 @@ def upload_file():
 
 
 file_list = []
-@app.route('/general_uploaded_files')
+@application.route('/general_uploaded_files')
 def general_uploaded_files():
     print("--------------general_uploaded_files route is running---------")
     global file_list,user_content_page
@@ -518,7 +520,7 @@ def general_uploaded_files():
             file_list.append(CurrentFile(file_count, item, "N/A", file_size_mb))
     return render_template('uploaded_files.html', file_list=file_list , on_general_files_upload = 1 )
 
-@app.route('/uploaded_files')
+@application.route('/uploaded_files')
 def uploaded_files():
     print("--------------uploaded_files route is running---------")
     global file_list, current_user,user_content_page
@@ -542,7 +544,7 @@ def uploaded_files():
     return render_template('uploaded_files.html', file_list=file_list)
     
     
-@app.route('/download/<int:file_id>')
+@application.route('/download/<int:file_id>')
 def download(file_id):
     print("--------------download route is running---------")
     global file_list
@@ -552,7 +554,7 @@ def download(file_id):
     except Exception as e:
         return str(e)    
 
-@app.route('/user_download/<int:file_id>')
+@application.route('/user_download/<int:file_id>')
 def user_download(file_id):
     print("--------------user_download route is running---------")
     global file_list, current_user
@@ -562,7 +564,7 @@ def user_download(file_id):
     except Exception as e:
         return str(e)    
 
-@app.route('/delete_file/<int:file_id>')
+@application.route('/delete_file/<int:file_id>')
 def delete_file(file_id):
     print("--------------delete_file route is running---------")
     global current_user, file_list,user_content_page
@@ -580,7 +582,7 @@ def delete_file(file_id):
     
     return redirect(url_for(user_content_page))
 
-@app.route('/change_password_inputs',methods = ['GET','POST'])
+@application.route('/change_password_inputs',methods = ['GET','POST'])
 def change_password_inputs():
     print("--------------change_password_inputs route is running---------")
     global forgot_password_email_username,open_otp_form,show_login_form,global_otp,choose_password,wrong_otp
@@ -610,7 +612,7 @@ def change_password_inputs():
                            show_login_form =show_login_form,
                            open_otp_form = 1) 
  
-@app.route('/change_password',methods = ['GET','POST'])
+@application.route('/change_password',methods = ['GET','POST'])
 def change_password(): 
     print("--------------change_password route is running---------")
     global forgot_password_email_username,current_user,open_otp_form,show_login_form,global_otp,choose_password,wrong_otp
@@ -633,7 +635,7 @@ def change_password():
     wrong_otp = 0
     return render_template('index.html')
 
-@app.route('/admin_access')
+@application.route('/admin_access')
 @admin_only 
 def admin_access(): 
     print("--------------admin_access route is running---------")
@@ -649,7 +651,7 @@ def admin_access():
 #      data_list = df.to_dict(orient='records')
     
 #      return data_list
-# @app.route("/insert_data")
+# @application.route("/insert_data")
 # def insert_data():
 #      # EXECUTE THIS QUERY
      
@@ -707,4 +709,4 @@ def admin_access():
 #      return "<h1>DATA INSERTED SUCCESSFULLY</H1>"
 
 if __name__ == "__main__":
-    app.run(debug=True,host = '192.168.147.176')
+    application.run(debug=True)

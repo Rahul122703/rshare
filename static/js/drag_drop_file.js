@@ -129,3 +129,11 @@ select_icon = (file) => {
     return "../static/images/unknown_document.png";
   }
 };
+
+let a = 0,b = 0,c;
+for (let i = 1; i < 10; i++) {
+  console.log(a);
+  a = b;
+  c = a + b;
+  b = c;
+}
