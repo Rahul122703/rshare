@@ -1,8 +1,6 @@
 from flask import Flask, render_template,request,url_for,redirect,jsonify,send_file
-=======
-from flask import Flask, render_template,request,url_for,redirect,jsonify,send_file
->>>>>>> main
-rom flask_login import LoginManager,UserMixin,login_user,logout_user
+
+from flask_login import LoginManager,UserMixin,login_user,logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from flask_sqlalchemy import SQLAlchemy
@@ -31,7 +29,7 @@ global_otp = None
 choose_password = 0
 wrong_otp = 0
 user_content_page = None
-on_general_files_upload = 0
+on_general_files_upload = 0 
 
 #1FUNCTIONS
 def send_mail(receiver,body,sender = os.getenv('EMAIL')):
@@ -55,7 +53,7 @@ def send_otp(receiver):
                         <html>
                         <head>
                         <meta charset="UTF-8">
-                        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                        <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
                         <meta name="viewport" content="width=device-width, initial-scale=1.0">
                         <title>OTP Email</title>
                         </head>
