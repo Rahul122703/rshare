@@ -258,13 +258,14 @@
       });
     }
     $(document).ready(function () {
-      var content = `{{render_content|safe}}`;
+      let content = `{{render_content|safe}}`;
       $("#summernote2").summernote("code", content);
     });
     $(document).ready(function () {
-      var content = `{{render_content|safe}}`;
+      let content = `{{render_content|safe}}`;
       $("#summernote1").summernote("code", content);
     });
+
     const share_button = document.querySelector("#share_button");
     const pass_modal = document.querySelector("#password_modal");
     const cross = document.querySelector(".pass_close");

@@ -1,4 +1,4 @@
-from flask import Flask, render_template,request,url_for,redirect,jsonify,send_file,session
+from flask import Flask, render_template,request,url_for,redirect,jsonify,send_file
 from flask_login import LoginManager,UserMixin,login_user,logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -15,6 +15,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import random
 
+from dotenv import load_dotenv
+load_dotenv()
+
 #GLOBAL VARIABLES
 is_admin = 0
 current_user = None
@@ -28,10 +31,10 @@ user_content_page = None
 on_general_files_upload = 0
 
 #1FUNCTIONS
-def send_mail(receiver,body,sender = "killbusyness@gmail.com"):
+def send_mail(receiver,body,sender = os.getenv('EMAIL')):
     server = smtplib.SMTP("smtp.gmail.com", 587)
     server.starttls()
-    server.login(user="killbusyness@gmail.com", password="kkwa euzs efls oekb")
+    server.login(user= os.getenv('EMAIL'), password=os.getenv("EMAIL_APPPASSWORD"))
     msg = MIMEMultipart()
     msg['From'] = sender
     msg['To'] = receiver
@@ -89,17 +92,17 @@ def get_file(file_id,file_list):
         
 application = Flask(__name__)
 
-application.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///data.db"
-application.config['SECRET_KEY'] = "rahulsharma"
+application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
+application.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 application.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads') 
 
-application.config['SESSION_TYPE'] = 'filesystem'  # Use the filesystem for session storage
-application.config['SESSION_FILE_DIR'] = os.path.join(os.getcwd(), 'flask_session')  # Directory where sessions will be stored
-application.config['SESSION_PERMANENT'] = False  # Session will not be permanent
-application.config['SESSION_USE_SIGNER'] = True  # Sign the session ID cookie
-application.config['SESSION_USE_SIGNER'] = True  # Sign session cookie to avoid tamperin
+# application.config['SESSION_TYPE'] = 'filesystem'  # Use the filesystem for session storage
+# application.config['SESSION_FILE_DIR'] = os.path.join(os.getcwd(), 'flask_session')  # Directory where sessions will be stored
+# application.config['SESSION_PERMANENT'] = False  # Session will not be permanent
+# application.config['SESSION_USE_SIGNER'] = True  # Sign the session ID cookie
+# application.config['SESSION_USE_SIGNER'] = True  # Sign session cookie to avoid tamperin
 
-Session(application)
+# session(application)
 # Ensure the upload directory exists
 if not os.path.exists(application.config['UPLOAD_FOLDER']):
     os.makedirs(application.config['UPLOAD_FOLDER'])
@@ -136,6 +139,7 @@ class CurrentUser:
 #TABLES 
 class Base(DeclarativeBase):
     pass
+
 database = SQLAlchemy(model_class = Base)
 database.init_app(application)
 
@@ -204,9 +208,9 @@ def index():
     choose_password = 0
     wrong_otp = 0
     
-    print("--------------index route is running---------")
-    if "username" not in session:
-        current_user = None
+    # print("--------------index route is running---------")
+    # if "username" not in session:
+    #     current_user = None
     return render_template("index.html")
 
 
@@ -407,7 +411,6 @@ def register():
         )
         database.session.add(new_user)
         database.session.commit()
-        session['username'] = request.form.get("username").lower()
         login_user(new_user)
         current_user = new_user
         return render_template('index.html')
@@ -426,7 +429,6 @@ def login():
         else:
             chosen_username = database.session.execute(database.select(User).filter(User.username == username_input_data)).scalar()
         if check_password_hash(chosen_username.password, password_input_data):
-            session['username'] = chosen_username.username
             login_user(chosen_username)
         else:
             forgot_password_email_username = username_input_data
@@ -460,7 +462,6 @@ def logout():
     print("--------------logout route is running---------")
     global current_user
     current_user = None
-    session.pop('username',None)
     logout_user()
     return redirect(url_for('index'))
 
@@ -506,7 +507,7 @@ def general_uploaded_files():
     user_content_page = "general_uploaded_files"
     
     file_list = []
-    folder_path = os.path.join(app.config['UPLOAD_FOLDER'], 'general')
+    folder_path = os.path.join(application.config['UPLOAD_FOLDER'], 'general')
     if not os.path.exists(folder_path):
         return jsonify({'message': 'No files uploaded'})
     items = os.listdir(folder_path)
@@ -527,9 +528,9 @@ def uploaded_files():
     user_content_page = "uploaded_files"
     file_list = []
     if current_user:
-        folder_path = os.path.join(app.config['UPLOAD_FOLDER'], current_user.username)
+        folder_path = os.path.join(application.config['UPLOAD_FOLDER'], current_user.username)
     else:
-        folder_path = os.path.join(app.config['UPLOAD_FOLDER'], 'general')
+        folder_path = os.path.join(application.config['UPLOAD_FOLDER'], 'general')
     if not os.path.exists(folder_path):
         return jsonify({'message': 'No files uploaded'})
     items = os.listdir(folder_path)
@@ -569,9 +570,9 @@ def delete_file(file_id):
     print("--------------delete_file route is running---------")
     global current_user, file_list,user_content_page
     if current_user and user_content_page == "uploaded_files":
-        folder_path = os.path.join(app.config['UPLOAD_FOLDER'], current_user.username)
+        folder_path = os.path.join(application.config['UPLOAD_FOLDER'], current_user.username)
     else:
-        folder_path = os.path.join(app.config['UPLOAD_FOLDER'], 'general')
+        folder_path = os.path.join(application.config['UPLOAD_FOLDER'], 'general')
     file_name = get_file(file_id, file_list)
     file_path = os.path.join(folder_path, file_name)
     if os.path.exists(file_path):
