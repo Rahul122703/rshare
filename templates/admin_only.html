@@ -1,98 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ALL CONTENT</title>
-    <link rel="icon" type="image/x-icon" href="../static/images/share.png" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
-    />
-    <link rel="stylesheet" href="../static/css/table_styles.css" />
-  </head>
-  <body>
-    <div class="container">
-      <div class="tbl_content">
-        <div class="search-container">
-          <input type="text" class="search_input" placeholder="Search..." />
-        </div>
 
-          <table class="tbl">
-            <thead>
-              <tr>
-                <th>ID</th> <!--333-->
-                <th>USERNAME</th>
-                <th>EMAIL</th>
-                <th>CONTENT</th>
-                <th>FILES</th>
-              </tr>
-            </thead>
-            <tbody class="table_body">
-              {% for user in user_data %}
-              <tr>
-                <!-- ID Column -->
-                <td data-label="id" class="table_id">
-                  <span class="content_text">{{ user.id }}</span>
-                </td>
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ALL CONTENT</title>
+  <link rel="icon" type="image/x-icon" href="../static/images/share.png" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
+  <link rel="stylesheet" href="../static/css/table_styles.css" />
+</head>
 
-                <!-- USERNAME Column -->
-                <td data-label="username" class="table_username">
-                  <span class="content_text">{{ user.username }}</span>
-                </td>
+<body>
+  <div class="container">
+    <div class="tbl_content">
 
-                <!-- EMAIL Column -->
-                <td data-label="email" class="table_email">
-                  <span class="content_text">{{ user.email }}</span>
-                </td>
 
-                <!-- CONTENT Column -->
-                <td data-label="content" class="content_column table_content">
-                    <span class="content_text">N / A</span>
-                </td>
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>ID</th> <!--333-->
+            <th>USERNAME</th>
+            <th>EMAIL</th>
+            <th>CONTENT</th>
+            <th>FILES</th>
+          </tr>
+        </thead>
+        <tbody class="table_body">
+          {% for user in user_data %}
+          <tr>
+            <!-- ID Column -->
+            <td data-label="id" class="table_id">
+              <span class="content_text">{{ user.id }}</span>
+            </td>
 
-                <!-- FILES Column -->
-                <td data-label="files" class="table_files">
-                    <span class="content_text">N / A</span>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+            <!-- USERNAME Column -->
+            <td data-label="username" class="table_username">
+              <span class="content_text">{{ user.username }}</span>
+            </td>
 
-          <!-- Back Button -->
-        <a href="{{ url_for('back_button') }}">
-          <img src="../static/images/back_button.png" class="back_button_image" />
-        </a>
-      </div>
+            <!-- EMAIL Column -->
+            <td data-label="email" class="table_email">
+              <span class="content_text">{{ user.email }}</span>
+            </td>
+
+            <!-- CONTENT Column -->
+            <td data-label="content" class="content_column table_content">
+              <span class="content_text">N / A</span>
+            </td>
+
+            <!-- FILES Column -->
+            <td data-label="files" class="table_files">
+              <span class="content_text">N / A</span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      <!-- Back Button -->
+
     </div>
 
-    <script>
-      const table_row_container = document.querySelector(".table_body");
-      let content_data = [];
-      let count = 0;
-      let id = document.querySelectorAll(".table_id"); //333
-      let username = document.querySelectorAll(".table_username");
-      let email = document.querySelectorAll(".table_email");
-      let content = document.querySelectorAll(".table_content");
-      let file = document.querySelectorAll(".table_file");
+  </div>
+  <div class="search-container">
+    <input type="text" class="search_input" placeholder="Search..." />
+  </div>
+  <a href="{{ url_for('back_button') }}">
+    <img src="../static/images/back_button.png" class="back_button_image" />
+  </a>
+  <script>
+    const table_row_container = document.querySelector(".table_body");
+    let content_data = [];
+    let count = 0;
+    let id = document.querySelectorAll(".table_id"); //333
+    let username = document.querySelectorAll(".table_username");
+    let email = document.querySelectorAll(".table_email");
+    let content = document.querySelectorAll(".table_content");
+    let file = document.querySelectorAll(".table_file");
 
-      id.forEach(() => {
-        content_data.push({
-          id: id[count].textContent.trim(),
-          username: content[count].textContent.trim(),
-          email: time[count].textContent.trim(),
-          content: time[count].textContent.trim(),
-          file: time[count].textContent.trim(),
-        });
-        count++;
+    id.forEach(() => {
+      content_data.push({
+        id: id[count].textContent.trim(),
+        username: username[count].textContent.trim(),
+        email: email[count].textContent.trim(),
+        content: content[count].textContent.trim(),
+        file: file[count],
       });
+      count++;
+    });
 
-      function insert_data(data_array) {
-        const row_data = data_array
-          .map((currentItem) => {
-            return `
+    function insert_data(data_array) {
+      const row_data = data_array
+        .map((currentItem) => {
+          return `
                   <tr>
                 <!-- ID Column -->
                 <td data-label="id" class="table_id">
@@ -101,12 +102,12 @@
 
                 <!-- USERNAME Column -->
                 <td data-label="username" class="table_username">
-                  <span class="content_text">${ currentItem.username }</span>
+                  <span class="content_text">${currentItem.username}</span>
                 </td>
 
                 <!-- EMAIL Column -->
                 <td data-label="email" class="table_email">
-                  <span class="content_text">${ currentItem.email }</span>
+                  <span class="content_text">${currentItem.email}</span>
                 </td>
 
                 <!-- CONTENT Column -->
@@ -119,30 +120,30 @@
                     <span class="content_text">N/A</span>
                 </td>
               </tr>`;
-          })
-          .join(" ");
-        table_row_container.innerHTML = row_data;
-      }
+        })
+        .join(" ");
+      table_row_container.innerHTML = row_data;
+    }
 
-      const search_input = document.querySelector(".search_input");
+    const search_input = document.querySelector(".search_input");
 
-      search_input.addEventListener("input", function () {
-        const searchValue = search_input.value.toLowerCase().trim();
-        if (searchValue === "") {
-          insert_data(content_data);
-          add_delete_event_listner();
+    search_input.addEventListener("input", function () {
+      const searchValue = search_input.value.toLowerCase().trim();
+      if (searchValue === "") {
+        insert_data(content_data);
+      } else {
+        const filtered_products = content_data.filter(function (currentItem) {
+          return currentItem.username.toLowerCase().includes(searchValue);
+        });
+        console.log(filtered_products);
+        if (filtered_products.length === 0) {
+          insert_data([]);
         } else {
-          const filtered_products = content_data.filter(function (currentItem) {
-            return currentItem.content.toLowerCase().includes(searchValue);
-          });
-          if (filtered_products.length === 0) {
-            insert_data([]);
-          } else {
-            insert_data(filtered_products);
-            add_delete_event_listner();
-          }
+          insert_data(filtered_products);
         }
-      });
-    </script>
-  </body>
+      }
+    });
+  </script>
+</body>
+
 </html>
