@@ -39,7 +39,7 @@ def send_mail(receiver,body,sender = os.getenv('EMAIL')):
     msg = MIMEMultipart()
     msg['From'] = sender
     msg['To'] = receiver
-    msg['Subject'] = "SUBJECT"
+    msg['Subject'] = "SENDING OTP FROM RSHARE"
     msg.attach(MIMEText(body, 'html'))
     server.sendmail(sender, receiver, msg.as_string())
     server.quit()
@@ -94,7 +94,7 @@ def get_file(file_id,file_list):
 application = Flask(__name__)
 
 application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
-application.config['SECRET_KEY'] = 'rahulsharmaxiershare'
+application.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
 application.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads') 
 
 # application.config['SESSION_TYPE'] = 'filesystem'  # Use the filesystem for session storage
