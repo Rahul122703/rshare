@@ -100,7 +100,7 @@
 }
 
 .top {
-  border: 1px solid black;
+  /* border: 1px solid black; */
   color: white;
   font-weight: bold;
   font-size: 2rem;
@@ -278,7 +278,7 @@ a:hover {
   .all_container {
     flex-direction: column;
     height: calc(2 * (100% - var(--height_of_top)));
-    border: 2px solid black;
+    /* border: 2px solid black; */
   }
   #document_button1 {
     display: none;
@@ -331,7 +331,6 @@ a:hover {
 
   .upload_file {
     position: absolute;
-    top: 170vh;
     height: 80px;
     aspect-ratio: 1/1;
   }
