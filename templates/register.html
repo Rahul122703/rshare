@@ -17,7 +17,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height:100%
+        height: 100%;
       }
 
       .container {
@@ -61,7 +61,7 @@
       }
 
       .register-button {
-        display:none;
+        display: none;
         width: 100%;
         background-color: #007bff;
         color: white;
@@ -128,8 +128,8 @@
           position: fixed;
         }
       }
-      #register_button{
-        display:none;
+      #register_button {
+        display: none;
       }
       .warning-box {
         background-color: #f8d7da;
@@ -137,17 +137,17 @@
         padding: 10px;
         border-radius: 5px;
         margin-top: 10px;
-        display:none;
+        display: none;
       }
-      .tick{
-        display:none;
+      .tick {
+        display: none;
         position: relative;
-        left:92%;
-        top:1%;
+        left: 92%;
+        top: 1%;
       }
       .gradient-container {
         height: 100vh;
-        width:100vw;
+        width: 100vw;
         background: linear-gradient(
           45deg,
           #00b7ff,
@@ -157,9 +157,9 @@
         );
         background-size: 400% 400%;
         animation: gradientAnimation 10s ease infinite;
-        display:flex;
-        justify-content:center;
-        align-items:center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
       @keyframes gradientAnimation {
         0% {
@@ -186,8 +186,7 @@
               placeholder="Choose a username"
               required
               name="username"
-              class="username_input"
-            />
+              class="username_input" />
             <span class="tick" id="username_tick" style="display: none">
               ✔️
             </span>
@@ -202,8 +201,7 @@
               placeholder="Enter your email"
               required
               name="email"
-              class="email_input"
-            />
+              class="email_input" />
             <span class="tick" id="email_tick" style="display: none"> ✔️ </span>
             <div id="email_warning" class="warning-box">
               Email already in use. Please use another email.
@@ -216,8 +214,7 @@
               placeholder="Enter your password"
               required
               name="password"
-              class="password_input"
-            />
+              class="password_input" />
             <span class="password-toggle" onclick="togglePassword()"> 👁️ </span>
           </div>
           <div id="password_warning" class="warning-box">
@@ -227,8 +224,7 @@
             type="submit"
             class="register-button"
             id="register_button"
-            style="display: none"
-          >
+            style="display: none">
             Register
           </button>
         </form>

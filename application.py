@@ -94,7 +94,7 @@ def get_file(file_id,file_list):
 application = Flask(__name__)
 
 application.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
-application.config['SECRET_KEY'] = os.getenv("SECRET_KEY")
+application.config['SECRET_KEY'] = 'rahulsharmaxiershare'
 application.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads') 
 
 # application.config['SESSION_TYPE'] = 'filesystem'  # Use the filesystem for session storage
