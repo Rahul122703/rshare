@@ -68,14 +68,14 @@ if (body_width < 400) {
 
 document.addEventListener("DOMContentLoaded", function () {
   let fixed_height =
-    document.querySelector("body").getBoundingClientRect().height - 170;
+    document.querySelector("body").getBoundingClientRect().height - 200;
 
   ["summernote2", "summernote1"].forEach((id) => {
     let element = document.getElementById(id);
     if (element) {
       $(element).summernote({
         placeholder: id === "summernote2" ? "RECEIVE..." : "UPLOAD...",
-        minHeight: 600,
+        minHeight: fixed_height,
         maxHeight: fixed_height,
       });
     }
