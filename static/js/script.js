@@ -73,10 +73,14 @@ document.addEventListener("DOMContentLoaded", function () {
   let summernote1 = document.getElementById("summernote1");
   let summernote2 = document.getElementById("summernote2");
 
+  if (fixed_height < 100) {
+    fixed_height = 750;
+  }
+
   if (summernote1) {
     $(summernote1).summernote({
       placeholder: "UPLOAD...",
-      minHeight: 750,
+      minHeight: fixed_height,
       maxHeight: fixed_height,
     });
   }
@@ -84,7 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (summernote2) {
     $(summernote2).summernote({
       placeholder: "RECEIVE...",
-      minHeight: 750,
+      minHeight: fixed_height,
       maxHeight: fixed_height,
     });
   }
