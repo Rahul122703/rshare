@@ -581,7 +581,27 @@ a:hover {
   align-items: center;
   font-size: 1.5rem;
 }
+.files_button {
+  padding: 6px 18px;
+  font-weight: bold;
+  letter-spacing: 1.5px;
+  color: white;
+  background: linear-gradient(90deg, #007bff, #00b7ff, #00e5ff, #007bff);
+  border: 2px solid rgba(0, 183, 255, 0.7);
+  cursor: pointer;
+  background-size: 400%;
+  background-position: 0%;
+  border-radius: 10px;
+  text-align: center;
+  display: inline-block;
+  text-decoration: none;
+  transition: 0.3s ease-in-out;
+  font-size: 1.5rem;
+}
 
+.files_button:hover {
+  background-position: 100%;
+}
 .blue-gradient-button {
   padding: 6px 18px;
   font-weight: bold;

@@ -70,14 +70,22 @@ document.addEventListener("DOMContentLoaded", function () {
   let fixed_height =
     document.querySelector("body").getBoundingClientRect().height - 200;
 
-  ["summernote2", "summernote1"].forEach((id) => {
-    let element = document.getElementById(id);
-    if (element) {
-      $(element).summernote({
-        placeholder: id === "summernote2" ? "RECEIVE..." : "UPLOAD...",
-        minHeight: fixed_height,
-        maxHeight: fixed_height,
-      });
-    }
-  });
+  let summernote1 = document.getElementById("summernote1");
+  let summernote2 = document.getElementById("summernote2");
+
+  if (summernote1) {
+    $(summernote1).summernote({
+      placeholder: "UPLOAD...",
+      minHeight: 750,
+      maxHeight: fixed_height,
+    });
+  }
+
+  if (summernote2) {
+    $(summernote2).summernote({
+      placeholder: "RECEIVE...",
+      minHeight: 750,
+      maxHeight: fixed_height,
+    });
+  }
 });
