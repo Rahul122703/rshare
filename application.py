@@ -1,5 +1,4 @@
-from flask import Flask, render_template,request,url_for,redirect,jsonify,send_file
-
+from flask import Flask, render_template,request,url_for,redirect,jsonify,send_file, send_from_directory
 from flask_login import LoginManager,UserMixin,login_user,logout_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -214,6 +213,9 @@ def index():
     #     current_user = None
     return render_template("index.html")
 
+@application.route('/uploads/general/<filename>')
+def uploaded_general_file(filename):
+    return send_from_directory('./uploads/general', filename)
 
 @application.route("/upload",methods = ['POST','GET'])
 def upload():
@@ -499,8 +501,8 @@ def upload_file():
     
     return jsonify({'error': 'File upload failed'})
 
-
-file_list = []
+#1234
+file_list = [] 
 @application.route('/general_uploaded_files')
 def general_uploaded_files():
     print("--------------general_uploaded_files route is running---------")
@@ -519,7 +521,7 @@ def general_uploaded_files():
             file_count += 1
             file_size = os.path.getsize(item_path)
             file_size_mb = round(file_size / (1024 * 1024), 2)
-            file_list.append(CurrentFile(file_count, item, "N/A", file_size_mb))
+            file_list.append(CurrentFile(file_count, item, "N/A", file_size_mb)) #here123
     return render_template('uploaded_files.html', file_list=file_list , on_general_files_upload = 1 )
 
 @application.route('/uploaded_files')

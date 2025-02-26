@@ -8,8 +8,7 @@
     <link rel="icon" type="image/x-icon" href="../static/images/share.png" />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css"
-    />
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" />
     <link rel="stylesheet" href="../static/css/table_styles.css" />
   </head>
   <body class="gradient-container">
@@ -26,201 +25,116 @@
         </thead>
         <tbody class="table_body">
           {% for file in file_list %}
-          <tr>
-            <div
-              id="modal_no_{{ file.id }}"
-              class="modal"
-              style="display: none"
-            >
-              <div class="modal-content">
-                <span class="close">&times;</span>
-                <p>
-                  Are you sure you want to delete this item? "{{ file.name }}"
-                </p>
-                <div class="modal-buttons">
-                  <a href="{{url_for('delete_file', file_id= file.id)}}">
-                    <button class="btn-yes">Yes</button>
-                  </a>
-                  <button class="btn-no">No</button>
-                </div>
-              </div>
-            </div>
-            <td data-label="id" class="table_id">
-              <span class="content_text">{{ file.id }}</span>
+          <tr class="file-row" data-file-name="{{ file.name }}">
+            <td class="table_id">{{ file.id }}</td>
+            <td class="table_content">
+              <a href="#">{{ file.name }}</a>
             </td>
-
-            <td data-label="file_name" class="content_column table_content">
-              <a href="#"
-                ><br /><span class="content_text">{{ file.name }}</span></a
-              >
-            </td>
-            <td data-label="date" class="table_time">
-              <span class="content_text"><br />{{ file.time }}</span>
-            </td>
-
-            <td data-label="size" class="table_size">
-              <span class="content_text"><br />{{ file.size }} MB</span>
-            </td>
-
-            <td id="deleteBtn{{ file.id }}" class="table_delete">
-              <button
-                class="btn_trash delete_button"
-                data-label="modal_no_{{ file.id }}"
-              >
+            <td class="table_time">{{ file.time }}</td>
+            <td class="table_size">{{ file.size }} MB</td>
+            <td class="table_delete">
+              <button class="btn_trash delete_button" data-id="{{ file.id }}">
                 <img
                   src="../static/images/delete_icon.png"
-                  class="delete_button_img"
-                />
+                  class="delete_button_img" />
               </button>
-              {% if on_general_files_upload %}
-              <a href="{{url_for('download', file_id= file.id)}}">
+              <a href="{{ url_for('download', file_id=file.id) }}">
                 <button class="small_upload_button">
                   <img
                     src="../static/images/download.png"
-                    id="table_upload_image"
-                  />
+                    id="table_upload_image" />
                 </button>
               </a>
-              {% else %}
-              <a href="{{url_for('user_download', file_id= file.id)}}">
-                <button class="small_upload_button">
-                  <img
-                    src="../static/images/download.png"
-                    id="table_upload_image"
-                  />
-                </button>
-              </a>
-              {% endif %}
             </td>
           </tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
+
     <div class="search-container">
       <input type="text" class="search_input" placeholder="Search..." />
     </div>
-    <a href="{{ url_for('back_button') }} "
-      ><img src="../static/images/back_button.png" class="back_button_image"
-    /></a>
-    <a href="{{ url_for('table_data') }} ">
-      <button type="submit" class="submit file_content_button">
-        CONTENT
-      </button></a
-    >
+
+    <a href="{{ url_for('back_button') }}">
+      <img src="../static/images/back_button.png" class="back_button_image" />
+    </a>
+    <a href="{{ url_for('table_data') }}">
+      <button class="submit file_content_button">CONTENT</button>
+    </a>
+
+    <div class="image-modal" id="imageModal" style="display: none">
+      <span class="close-modal" id="closeModal">&times;</span>
+      <div class="modal-content">
+        <img id="modalImage" src="" alt="File Preview" />
+      </div>
+    </div>
+
+    <div id="deleteModal" class="modal" style="display: none">
+      <div class="modal-content">
+        <span class="close" id="closeDeleteModal">&times;</span>
+        <p>Are you sure you want to delete this item?</p>
+        <div class="modal-buttons">
+          <a id="deleteConfirm" href="#">
+            <button class="btn-yes">Yes</button>
+          </a>
+          <button class="btn-no" id="cancelDelete">No</button>
+        </div>
+      </div>
+    </div>
     <script>
-      const table_row_container = document.querySelector(".table_body");
-
-      function add_delete_event_listner() {
-        const all_delete_buttons = document.querySelectorAll(".delete_button");
-        all_delete_buttons.forEach((currentItem) => {
-          currentItem.addEventListener("click", () => {
-            const selected_modal = currentItem.getAttribute("data-label");
-            const modal_to_select = document.getElementById(
-              `${selected_modal}`
-            );
-            const no_button = modal_to_select.querySelector(".btn-no");
-            const cross_button = modal_to_select.querySelector(".close");
-
-            modal_to_select.style.display = "block";
-
-            no_button.addEventListener("click", () => {
-              modal_to_select.style.display = "none";
-            });
-            cross_button.addEventListener("click", () => {
-              modal_to_select.style.display = "none";
-            });
-          });
-        });
-      }
-      add_delete_event_listner();
-      let content_data = [];
-      let count = 0;
-      let id = document.querySelectorAll(".table_id");
-      let file_name = document.querySelectorAll(".table_content");
-      let time = document.querySelectorAll(".table_time");
-      let size = document.querySelectorAll(".table_size");
-
-      id.forEach(() => {
-        content_data.push({
-          id: id[count].textContent.trim(),
-          file_name: file_name[count].textContent.trim(),
-          time: time[count].textContent.trim(),
-          size: size[count].textContent.trim(),
-        });
-        count++;
-      });
-      console.log(content_data);
-      function insert_data(data_array) {
-        const row_data = data_array
-          .map((currentItem) => {
-            return `
-                  <tr>
-                        <div id="modal_no_${currentItem.id}" class="modal" style="display:none">
-                            <div class="modal-content">
-                                <span class="close">&times;</span>
-                                <p>Are you sure you want to delete this item? "${currentItem.file_name}"</p>
-                                <div class="modal-buttons">
-                                    <a href="/delete_fi/${currentItem.id}">
-                                        <button class="btn-yes">Yes</button>
-                                    </a>
-                                    <button class="btn-no">No</button>
-                                </div>
-                            </div>
-                        </div>
-                      <td data-label="id" class="table_id"><span class="content_text">${currentItem.id}</span></td>
-
-                      <td data-label="content" class="content_column table_content">
-                        <a href="/full_content/${currentItem.id}">
-                          <br><span class="content_text">${currentItem.file_name}</span>
-                        </a>
-                      </td>
-                      <td data-label="time" class="table_time"><span class="content_text"><br>${currentItem.time}</span></td>
-                      <td data-label="size" class="table_size">
-                          <span class="content_text"><br/>${currentItem.size}</span>
-                      </td>
-                      <td id="deleteBtn${currentItem.id}" class="table_delete">
-                          <button class="btn_trash delete_button" data-label="modal_no_${currentItem.id}">
-                              <img
-                                src="../static/images/delete_icon.png"
-                                class="delete_button_img"
-                              />
-                          </button>
-                          <a href="/download/${currentItem.id}">
-                            <button class="small_upload_button">
-                              <img
-                                src="../static/images/download.png"
-                                id="table_upload_image"
-                              />
-                            </button>
-                          </a>
-                      </td>
-                  </tr>`;
-          })
-          .join(" ");
-        table_row_container.innerHTML = row_data;
-      }
-
-      const search_input = document.querySelector(".search_input");
-
-      search_input.addEventListener("keydown", function () {
-        console.log("code is here");
-        const searchValue = search_input.value.toLowerCase().trim();
-        if (searchValue === "") {
-          insert_data(content_data);
-          add_delete_event_listner();
-        } else {
-          const filtered_products = content_data.filter(function (currentItem) {
-            return currentItem.file_name.toLowerCase().includes(searchValue);
-          });
-          if (filtered_products.length === 0) {
-            insert_data([]);
-          } else {
-            insert_data(filtered_products);
-            add_delete_event_listner();
+        document.querySelectorAll(".file-row").forEach((row) => {
+        row.addEventListener("click", function () {
+          const fileName = this.getAttribute("data-file-name");
+          if (fileName.match(/\.(jpeg|jpg|png|gif)$/i)) {
+            document.getElementById("modalImage").src =
+              "{{ url_for('uploaded_general_file', filename='') }}" + fileName;
+            console.log("{{ url_for('uploaded_general_file', filename='') }}" + fileName);
+            document.getElementById("imageModal").style.display = "flex";
           }
-        }
+        });
+      })
+
+      document
+        .getElementById("closeModal")
+        .addEventListener("click", function () {
+          document.getElementById("imageModal").style.display = "none";
+        });
+
+      document.querySelectorAll(".delete_button").forEach((button) => {
+        button.addEventListener("click", function (event) {
+          event.stopPropagation();
+          const fileId = this.getAttribute("data-id");
+          document.getElementById(
+            "deleteConfirm"
+          ).href = `/delete_file/${fileId}`;
+          document.getElementById("deleteModal").style.display = "block";
+        });
       });
+
+      document
+        .getElementById("closeDeleteModal")
+        .addEventListener("click", function () {
+          document.getElementById("deleteModal").style.display = "none";
+        });
+
+      document
+        .getElementById("cancelDelete")
+        .addEventListener("click", function () {
+          document.getElementById("deleteModal").style.display = "none";
+        });
+
+      document
+        .querySelector(".search_input")
+        .addEventListener("input", function () {
+          const searchValue = this.value.toLowerCase().trim();
+          document.querySelectorAll(".file-row").forEach((row) => {
+            const fileName = row
+              .querySelector(".table_content a")
+              .textContent.toLowerCase();
+            row.style.display = fileName.includes(searchValue) ? "" : "none";
+          });
+        });
     </script>
   </body>
 </html>
