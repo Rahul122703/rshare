@@ -1,464 +1,427 @@
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RSHARE</title>
-    <link rel="icon" type="image/x-icon" href="../static/images/share.png" />
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RSHARE</title>
+  <link rel="icon" type="image/x-icon" href="../static/images/share.png" />
 
-    <link
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-      rel="stylesheet" />
+  <link rel="manifest" href="../static/manifest.json"> <!-- Correct Manifest Link -->
 
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.css"
-      rel="stylesheet" />
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.css" rel="stylesheet" />
 
-    <link rel="stylesheet" href="../static/css/drag_drop_file.css" />
-    <link rel="stylesheet" href="../static/css/styles.css" />
-  </head>
+  <link rel="stylesheet" href="../static/css/drag_drop_file.css" />
+  <link rel="stylesheet" href="../static/css/styles.css" />
 
-  <body class="gradient-container">
-    <div class="top gradient-container">
-      <div class="files_button">
-        <a href="{{url_for('table_data')}}" id="share_button">FILES</a>
-      </div>
-      <!-- 
+  <!-- Service Worker Registration -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("../static/sw.js");
+    }
+  </script>
+</head>
+
+
+<body class="gradient-container">
+  <div class="top gradient-container">
+    <div class="files_button">
+      <a href="{{url_for('table_data')}}" id="share_button">FILES</a>
+    </div>
+    <!-- 
         in order to add password modal for accessing file do this :
         1. remove this 'table_data' route  and also the replace a tag with span
         2. type 123here after typing ctrl + f 
         3. uncomment that part 2/2 after crtl + f
       -->
 
-      {% if current_user %}
-      <a href="{{ url_for('my_profile') }}"
-        ><button class="credential_button blue-gradient-button2">
-          <span>Your Data</span>
-        </button></a
-      >
-      <a href="{{ url_for('logout') }}"
-        ><button class="credential_button blue-gradient-button2">
-          <span>Log Out</span>
-        </button></a
-      >
-      {% else %}
-      <button class="credential_button login_button blue-gradient-button">
-        <span> Login</span>
+    {% if current_user %}
+    <a href="{{ url_for('my_profile') }}"><button class="credential_button blue-gradient-button2">
+        <span>Your Data</span>
+      </button></a>
+    <a href="{{ url_for('logout') }}"><button class="credential_button blue-gradient-button2">
+        <span>Log Out</span>
+      </button></a>
+    {% else %}
+    <button class="credential_button login_button blue-gradient-button">
+      <span> Login</span>
+    </button>
+    <a href="{{ url_for('register') }}"><button class="credential_button blue-gradient-button">
+        <span>Register</span>
+      </button></a>
+    {% endif %}
+  </div>
+
+  <div id="password_modal" class="pass_modal" style="display: none">
+    <div class="modal-content">
+      <span class="pass_close">&times;</span>
+      <p>Enter password to continue:</p>
+      <div class="modal-input">
+        <input type="password" id="password" class="toggling_password" placeholder="Enter your password" />
+      </div>
+      <span class="toggle-password">👁️</span>
+      <div class="modal-buttons"></div>
+    </div>
+  </div>
+
+  <div class="all_container">
+    <form class="right" method="POST" action="{{ url_for('upload') }}">
+      <textarea id="summernote1" name="summernote1"></textarea>
+      <button type="submit" class="upload_button_index animated-button">
+        <span>UPLOAD</span>
       </button>
-      <a href="{{ url_for('register') }}"
-        ><button class="credential_button blue-gradient-button">
-          <span>Register</span>
-        </button></a
-      >
+    </form>
+
+    <form class="left" method="POST" action="{{url_for('receive')}}">
+      <textarea id="summernote2" name="summernote2"></textarea>
+      <button type="submit" class="receive_button animated-button">
+        <span>RECEIVE</span>
+      </button>
+    </form>
+  </div>
+
+  <button class="send_doc animated-button" id="document_button1">
+    <span>Send document</span>
+  </button>
+  <button class="send_doc" id="document_button2">Send document</button>
+
+  <div class="drag_drop_modal_bg">
+    <div class="drag_drop_container all_container_shadow">
+      <img src="../static/images/cross.png" class="close_button" />
+      <div class="head_container">
+        <h1>UPLOAD FILES</h1>
+        <p>Upload any document</p>
+      </div>
+
+      <div class="drop_here">
+        <img src="../static/images/drag_and_drop.png" class="cloud_image mobile_hide" />
+        <h3 class="mobile_hide">Drag & Drop your Files here</h3>
+        <h3 class="mobile_hide">OR</h3>
+        <button class="browser_text osm_button">Browse Files</button>
+        <input id="browser_button" type="file" style="display: none" multiple />
+      </div>
+      <div class="uploading_list">
+        <h3>UPLOADED FILES</h3>
+        <div class="files_container"></div>
+      </div>
+    </div>
+  </div>
+  <!--LOGIN FORM MODAL-->
+
+  <div class="login-modal-bg">
+    <div class="login-modal-container">
+      <span class="login-close-btn">×</span>
+      <h2>Login</h2>
+
+      <form method="POST" action="{{url_for('login')}}">
+        <div class="login-form-group">
+          <input type="text" id="username_input" placeholder="Username or Email" required name="username_or_email" />
+          <div id="username_warning" class="warning-box">Text</div>
+          <span class="tick" id="username_tick" style="display: none">
+            ✔️
+          </span>
+        </div>
+
+        <div class="login-form-group" id="wrong_password_forgot_password">
+          <input type="password" id="password_input" placeholder="Password" required name="password" />
+          {% if wrong_password == 1 %}
+          <div id="password_warning" class="warning-box" style="display: block">
+            Wrong password
+          </div>
+          <!--111-->
+          <a href="{{url_for('change_password_inputs')}}">
+            <div id="forgot_password_button" class="warning-box forgot_password"
+              style="display: block; cursor: pointer">
+              forgot password? click here to change
+            </div>
+          </a>
+
+          {% endif %}
+        </div>
+        <button type="submit" class="login-button">Login</button>
+      </form>
+
+      {%if open_otp_form == 1 and choose_password == 0 %}
+      <center style="color: #007bff">
+        <h3>OR</h3>
+      </center>
+      <div class="otp-container">
+        <h4>Enter OTP send on your e-mail</h4>
+        {% if wrong_otp == 1 %}
+        <div id="password_warning" class="warning-box" style="display: block; margin-bottom: 10px">
+          Wrong O.T.P. entered
+        </div>
+        {% endif %}
+        <form method="POST" action="{{url_for('change_password_inputs')}}">
+          <div class="otp-input">
+            <input type="text" maxlength="1" autofocus name="otp_input_1" />
+            <input type="text" maxlength="1" name="otp_input_2" />
+            <input type="text" maxlength="1" name="otp_input_3" />
+            <input type="text" maxlength="1" name="otp_input_4" />
+            <input type="text" maxlength="1" name="otp_input_5" />
+            <input type="text" maxlength="1" name="otp_input_6" />
+          </div>
+          <button class="submit-btn" style="display: none">Submit</button>
+        </form>
+      </div>
+      {% endif %}
+      <!--CHOOSE PASSWORD FORM-->
+      {% if choose_password == 1 %}
+      <center style="color: #007bff">
+        <h3>OR</h3>
+      </center>
+      <form method="POST" action="{{url_for('change_password')}}">
+        <div class="login-form-group">
+          <input type="text" id="change_password_input1" placeholder="CHOOSE NEW PASSWORD" required
+            name="change_password_input1" />
+        </div>
+        <div class="login-form-group">
+          <input type="password" id="change_password_input2" placeholder="CONFIRM PASSWORD" required
+            name="change_password_input2" />
+          <div id="change_password_input2_warning" class="warning-box">
+            Passwords Don't match
+          </div>
+        </div>
+        <button class="change_password_submit_button" style="display: none">
+          Submit
+        </button>
+      </form>
       {% endif %}
     </div>
+  </div>
 
-    <div id="password_modal" class="pass_modal" style="display: none">
-      <div class="modal-content">
-        <span class="pass_close">&times;</span>
-        <p>Enter password to continue:</p>
-        <div class="modal-input">
-          <input
-            type="password"
-            id="password"
-            class="toggling_password"
-            placeholder="Enter your password" />
-        </div>
-        <span class="toggle-password">👁️</span>
-        <div class="modal-buttons"></div>
-      </div>
-    </div>
+  <script src="../static/js/script.js"></script>
 
-    <div class="all_container">
-      <form class="right" method="POST" action="{{ url_for('upload') }}">
-        <textarea id="summernote1" name="summernote1"></textarea>
-        <button type="submit" class="upload_button_index animated-button">
-          <span>UPLOAD</span>
-        </button>
-      </form>
+  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
-      <form class="left" method="POST" action="{{url_for('receive')}}">
-        <textarea id="summernote2" name="summernote2"></textarea>
-        <button type="submit" class="receive_button animated-button">
-          <span>RECEIVE</span>
-        </button>
-      </form>
-    </div>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
-    <button class="send_doc animated-button" id="document_button1">
-      <span>Send document</span>
-    </button>
-    <button class="send_doc" id="document_button2">Send document</button>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.js"></script>
+  <script>
+    if ("{{choose_password}}" == 1) {
+      function checkPasswords() {
+        const password1 = document.getElementById(
+          "change_password_input1"
+        ).value;
+        const password2 = document.getElementById(
+          "change_password_input2"
+        ).value;
+        const submitBtn = document.querySelector(
+          ".change_password_submit_button"
+        );
+        const warningBox = document.getElementById(
+          "change_password_input2_warning"
+        );
 
-    <div class="drag_drop_modal_bg">
-      <div class="drag_drop_container all_container_shadow">
-        <img src="../static/images/cross.png" class="close_button" />
-        <div class="head_container">
-          <h1>UPLOAD FILES</h1>
-          <p>Upload any document</p>
-        </div>
-
-        <div class="drop_here">
-          <img
-            src="../static/images/drag_and_drop.png"
-            class="cloud_image mobile_hide" />
-          <h3 class="mobile_hide">Drag & Drop your Files here</h3>
-          <h3 class="mobile_hide">OR</h3>
-          <button class="browser_text osm_button">Browse Files</button>
-          <input
-            id="browser_button"
-            type="file"
-            style="display: none"
-            multiple />
-        </div>
-        <div class="uploading_list">
-          <h3>UPLOADED FILES</h3>
-          <div class="files_container"></div>
-        </div>
-      </div>
-    </div>
-    <!--LOGIN FORM MODAL-->
-
-    <div class="login-modal-bg">
-      <div class="login-modal-container">
-        <span class="login-close-btn">×</span>
-        <h2>Login</h2>
-
-        <form method="POST" action="{{url_for('login')}}">
-          <div class="login-form-group">
-            <input
-              type="text"
-              id="username_input"
-              placeholder="Username or Email"
-              required
-              name="username_or_email" />
-            <div id="username_warning" class="warning-box">Text</div>
-            <span class="tick" id="username_tick" style="display: none">
-              ✔️
-            </span>
-          </div>
-
-          <div class="login-form-group" id="wrong_password_forgot_password">
-            <input
-              type="password"
-              id="password_input"
-              placeholder="Password"
-              required
-              name="password" />
-            {% if wrong_password == 1 %}
-            <div
-              id="password_warning"
-              class="warning-box"
-              style="display: block">
-              Wrong password
-            </div>
-            <!--111-->
-            <a href="{{url_for('change_password_inputs')}}">
-              <div
-                id="forgot_password_button"
-                class="warning-box forgot_password"
-                style="display: block; cursor: pointer">
-                forgot password? click here to change
-              </div>
-            </a>
-
-            {% endif %}
-          </div>
-          <button type="submit" class="login-button">Login</button>
-        </form>
-
-        {%if open_otp_form == 1 and choose_password == 0 %}
-        <center style="color: #007bff">
-          <h3>OR</h3>
-        </center>
-        <div class="otp-container">
-          <h4>Enter OTP send on your e-mail</h4>
-          {% if wrong_otp == 1 %}
-          <div
-            id="password_warning"
-            class="warning-box"
-            style="display: block; margin-bottom: 10px">
-            Wrong O.T.P. entered
-          </div>
-          {% endif %}
-          <form method="POST" action="{{url_for('change_password_inputs')}}">
-            <div class="otp-input">
-              <input type="text" maxlength="1" autofocus name="otp_input_1" />
-              <input type="text" maxlength="1" name="otp_input_2" />
-              <input type="text" maxlength="1" name="otp_input_3" />
-              <input type="text" maxlength="1" name="otp_input_4" />
-              <input type="text" maxlength="1" name="otp_input_5" />
-              <input type="text" maxlength="1" name="otp_input_6" />
-            </div>
-            <button class="submit-btn" style="display: none">Submit</button>
-          </form>
-        </div>
-        {% endif %}
-        <!--CHOOSE PASSWORD FORM-->
-        {% if choose_password == 1 %}
-        <center style="color: #007bff">
-          <h3>OR</h3>
-        </center>
-        <form method="POST" action="{{url_for('change_password')}}">
-          <div class="login-form-group">
-            <input
-              type="text"
-              id="change_password_input1"
-              placeholder="CHOOSE NEW PASSWORD"
-              required
-              name="change_password_input1" />
-          </div>
-          <div class="login-form-group">
-            <input
-              type="password"
-              id="change_password_input2"
-              placeholder="CONFIRM PASSWORD"
-              required
-              name="change_password_input2" />
-            <div id="change_password_input2_warning" class="warning-box">
-              Passwords Don't match
-            </div>
-          </div>
-          <button class="change_password_submit_button" style="display: none">
-            Submit
-          </button>
-        </form>
-        {% endif %}
-      </div>
-    </div>
-
-    <script src="../static/js/script.js"></script>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.18/summernote-bs4.min.js"></script>
-    <script>
-      if ("{{choose_password}}" == 1) {
-        function checkPasswords() {
-          const password1 = document.getElementById(
-            "change_password_input1"
-          ).value;
-          const password2 = document.getElementById(
-            "change_password_input2"
-          ).value;
-          const submitBtn = document.querySelector(
-            ".change_password_submit_button"
-          );
-          const warningBox = document.getElementById(
-            "change_password_input2_warning"
-          );
-
-          if (password1.length < 5 || password2.length < 5) {
-            submitBtn.style.display = "none";
-            warningBox.style.display = "block";
-            warningBox.textContent = "Password must be at least 5 characters.";
-          } else if (password1 !== password2) {
-            submitBtn.style.display = "none";
-            warningBox.style.display = "block";
-            warningBox.textContent = "Passwords don't match.";
-          } else {
-            submitBtn.style.display = "inline-block";
-            warningBox.style.display = "none";
-          }
-        }
-
-        document
-          .getElementById("change_password_input1")
-          .addEventListener("input", checkPasswords);
-        document
-          .getElementById("change_password_input2")
-          .addEventListener("input", checkPasswords);
-      }
-      const is_otp_form_on = "{{open_otp_form}}";
-      if (is_otp_form_on == 1) {
-        const inputs = document.querySelectorAll(".otp-input input");
-        const submitBtn = document.querySelector(".submit-btn");
-
-        function checkOtpInputs() {
-          let allFilled = true;
-          inputs.forEach((input) => {
-            if (!input.value) {
-              allFilled = false;
-            }
-          });
-
-          if (allFilled) {
-            submitBtn.style.display = "block";
-          } else {
-            submitBtn.style.display = "none";
-          }
-        }
-
-        checkOtpInputs();
-
-        inputs.forEach((input, index) => {
-          input.addEventListener("input", () => {
-            if (input.value && index < inputs.length - 1) {
-              inputs[index + 1].focus();
-            }
-            checkOtpInputs();
-          });
-
-          input.addEventListener("keydown", (e) => {
-            if (e.key === "Backspace" && !input.value && index > 0) {
-              inputs[index - 1].focus();
-            }
-            checkOtpInputs();
-          });
-        });
-      }
-      $(document).ready(function () {
-        let content = `{{render_content|safe}}`;
-        $("#summernote2").summernote("code", content);
-      });
-      $(document).ready(function () {
-        let content = `{{render_content|safe}}`;
-        $("#summernote1").summernote("code", content);
-      });
-
-      const share_button = document.querySelector("#share_button");
-      const pass_modal = document.querySelector("#password_modal");
-      const cross = document.querySelector(".pass_close");
-      const password_input = document.getElementById("password");
-      const toggle_password = document.querySelector(".toggle-password");
-      const modal_button_container = document.querySelector(".modal-buttons");
-
-      let toggle_count = 1;
-
-      toggle_password.addEventListener("click", () => {
-        if (password_input.type === "password") {
-          password_input.type = "text";
-          toggle_password.textContent = "🙈";
+        if (password1.length < 5 || password2.length < 5) {
+          submitBtn.style.display = "none";
+          warningBox.style.display = "block";
+          warningBox.textContent = "Password must be at least 5 characters.";
+        } else if (password1 !== password2) {
+          submitBtn.style.display = "none";
+          warningBox.style.display = "block";
+          warningBox.textContent = "Passwords don't match.";
         } else {
-          password_input.type = "password";
-          toggle_password.textContent = "👁️";
+          submitBtn.style.display = "inline-block";
+          warningBox.style.display = "none";
         }
+      }
+
+      document
+        .getElementById("change_password_input1")
+        .addEventListener("input", checkPasswords);
+      document
+        .getElementById("change_password_input2")
+        .addEventListener("input", checkPasswords);
+    }
+    const is_otp_form_on = "{{open_otp_form}}";
+    if (is_otp_form_on == 1) {
+      const inputs = document.querySelectorAll(".otp-input input");
+      const submitBtn = document.querySelector(".submit-btn");
+
+      function checkOtpInputs() {
+        let allFilled = true;
+        inputs.forEach((input) => {
+          if (!input.value) {
+            allFilled = false;
+          }
+        });
+
+        if (allFilled) {
+          submitBtn.style.display = "block";
+        } else {
+          submitBtn.style.display = "none";
+        }
+      }
+
+      checkOtpInputs();
+
+      inputs.forEach((input, index) => {
+        input.addEventListener("input", () => {
+          if (input.value && index < inputs.length - 1) {
+            inputs[index + 1].focus();
+          }
+          checkOtpInputs();
+        });
+
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Backspace" && !input.value && index > 0) {
+            inputs[index - 1].focus();
+          }
+          checkOtpInputs();
+        });
       });
+    }
+    $(document).ready(function () {
+      let content = `{{render_content|safe}}`;
+      $("#summernote2").summernote("code", content);
+    });
+    $(document).ready(function () {
+      let content = `{{render_content|safe}}`;
+      $("#summernote1").summernote("code", content);
+    });
 
-      //123here
-      /*share_button.addEventListener("click", () => {
-        pass_modal.style.display = "block";
-      });*/
+    const share_button = document.querySelector("#share_button");
+    const pass_modal = document.querySelector("#password_modal");
+    const cross = document.querySelector(".pass_close");
+    const password_input = document.getElementById("password");
+    const toggle_password = document.querySelector(".toggle-password");
+    const modal_button_container = document.querySelector(".modal-buttons");
 
-      cross.addEventListener("click", () => {
-        pass_modal.style.display = "none";
-        password_input.value = "";
-        modal_button_container.innerHTML = "";
-      });
+    let toggle_count = 1;
 
-      // PASSWORD SECTION
-      password_input.addEventListener("keyup", () => {
-        if (password_input.value == "qwerasdf") {
-          toggle_password.textContent = "";
-          modal_button_container.innerHTML = `
+    toggle_password.addEventListener("click", () => {
+      if (password_input.type === "password") {
+        password_input.type = "text";
+        toggle_password.textContent = "🙈";
+      } else {
+        password_input.type = "password";
+        toggle_password.textContent = "👁️";
+      }
+    });
+
+    //123here
+    /*share_button.addEventListener("click", () => {
+      pass_modal.style.display = "block";
+    });*/
+
+    cross.addEventListener("click", () => {
+      pass_modal.style.display = "none";
+      password_input.value = "";
+      modal_button_container.innerHTML = "";
+    });
+
+    // PASSWORD SECTION
+    password_input.addEventListener("keyup", () => {
+      if (password_input.value == "qwerasdf") {
+        toggle_password.textContent = "";
+        modal_button_container.innerHTML = `
             <a href="{{ url_for('check_for_admin') }} ">
               <button class="btn-continue">Continue</button>
             </a>`;
-        } else {
-          modal_button_container.innerHTML = " ";
-          toggle_password.textContent = "🙈";
-        }
-      });
-
-      // DYNAMIC LOGIN FORM
-      async function getUserData() {
-        try {
-          const response = await fetch("/get_json_data_user");
-          if (!response.ok) {
-            throw new Error("Failed to fetch user data");
-          }
-          const data = await response.json();
-          return data;
-        } catch (error) {
-          console.error(error);
-          if (result) {
-            result.textContent = "There was an error fetching the data";
-          }
-        }
-      }
-
-      function contentVisiblity(tick, warning, button, mode) {
-        if (mode) {
-          tick.style.display = "block";
-          warning.style.display = "none";
-          button.style.display = "block";
-        } else {
-          tick.style.display = "none";
-          warning.style.display = "block";
-          button.style.display = "none";
-        }
-      }
-      let usernames = [];
-      let emails = [];
-      getUserData().then((userData) => {
-        userData.forEach((currentItem) => {
-          usernames.push(currentItem.username);
-          emails.push(currentItem.email.replace("gmail.com", ""));
-        });
-      });
-
-      const login_button = document.querySelector(".login_button");
-      const login_form = document.querySelector(".login-modal-bg");
-      const login_modal_close = document.querySelector(".login-close-btn");
-
-      if ("{{show_login_form}}" == 1 || "{{wrong_password}}" == 1) {
-        login_form.style.display = "flex";
       } else {
-        login_form.style.display = "none";
+        modal_button_container.innerHTML = " ";
+        toggle_password.textContent = "🙈";
       }
+    });
 
-      login_button.addEventListener("click", () => {
-        login_form.style.display = "flex";
-      });
-      login_modal_close.addEventListener("click", () => {
-        login_form.style.display = "none";
-      });
-      //ading comments here
-      const username_input = document.querySelector("#username_input");
-
-      const username_tick = document.querySelector("#username_tick");
-      const warning_box = document.querySelector("#username_warning");
-      const password_warning_box = document.querySelector("#password_warning");
-      const login_submit = document.querySelector(".login-button");
-      const forgot_password_button = document.querySelector(
-        "#forgot_password_button"
-      );
-      username_input.addEventListener("keyup", () => {
-        let username_input_value = username_input.value.trim().toLowerCase();
-        if (username_input_value.includes("@")) {
-          let common_emails = emails.filter((currentItem) => {
-            if (username_input_value.includes(currentItem.toLowerCase())) {
-              return currentItem;
-            }
-          });
-          if (common_emails.length > 0) {
-            contentVisiblity(username_tick, warning_box, login_submit, true);
-          } else {
-            contentVisiblity(username_tick, warning_box, login_submit, false);
-            warning_box.textContent = "No Emails Registered with this name";
-          }
-        } else if (username_input_value.length > 2) {
-          let common_usernames = usernames.filter((currentItem) => {
-            if (currentItem.toLowerCase() == username_input_value) {
-              return currentItem;
-            }
-          });
-          if (common_usernames.length > 0) {
-            contentVisiblity(username_tick, warning_box, login_submit, true);
-          } else {
-            contentVisiblity(username_tick, warning_box, login_submit, false);
-            warning_box.textContent = "No username found";
-          }
-        } else {
-          username_tick.style.display = "none";
-          warning_box.style.display = "none";
-          login_submit.display = "none";
+    // DYNAMIC LOGIN FORM
+    async function getUserData() {
+      try {
+        const response = await fetch("/get_json_data_user");
+        if (!response.ok) {
+          throw new Error("Failed to fetch user data");
         }
-        password_warning_box.style.display = "none";
-        login_form.style.display = "{{wrong_password}}" == 1 ? "flex" : "none";
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        console.error(error);
+        if (result) {
+          result.textContent = "There was an error fetching the data";
+        }
+      }
+    }
+
+    function contentVisiblity(tick, warning, button, mode) {
+      if (mode) {
+        tick.style.display = "block";
+        warning.style.display = "none";
+        button.style.display = "block";
+      } else {
+        tick.style.display = "none";
+        warning.style.display = "block";
+        button.style.display = "none";
+      }
+    }
+    let usernames = [];
+    let emails = [];
+    getUserData().then((userData) => {
+      userData.forEach((currentItem) => {
+        usernames.push(currentItem.username);
+        emails.push(currentItem.email.replace("gmail.com", ""));
       });
-    </script>
-    <script src="../static/js/drag_drop_file.js"></script>
-  </body>
+    });
+
+    const login_button = document.querySelector(".login_button");
+    const login_form = document.querySelector(".login-modal-bg");
+    const login_modal_close = document.querySelector(".login-close-btn");
+
+    if ("{{show_login_form}}" == 1 || "{{wrong_password}}" == 1) {
+      login_form.style.display = "flex";
+    } else {
+      login_form.style.display = "none";
+    }
+
+    login_button.addEventListener("click", () => {
+      login_form.style.display = "flex";
+    });
+    login_modal_close.addEventListener("click", () => {
+      login_form.style.display = "none";
+    });
+    //ading comments here
+    const username_input = document.querySelector("#username_input");
+
+    const username_tick = document.querySelector("#username_tick");
+    const warning_box = document.querySelector("#username_warning");
+    const password_warning_box = document.querySelector("#password_warning");
+    const login_submit = document.querySelector(".login-button");
+    const forgot_password_button = document.querySelector(
+      "#forgot_password_button"
+    );
+    username_input.addEventListener("keyup", () => {
+      let username_input_value = username_input.value.trim().toLowerCase();
+      if (username_input_value.includes("@")) {
+        let common_emails = emails.filter((currentItem) => {
+          if (username_input_value.includes(currentItem.toLowerCase())) {
+            return currentItem;
+          }
+        });
+        if (common_emails.length > 0) {
+          contentVisiblity(username_tick, warning_box, login_submit, true);
+        } else {
+          contentVisiblity(username_tick, warning_box, login_submit, false);
+          warning_box.textContent = "No Emails Registered with this name";
+        }
+      } else if (username_input_value.length > 2) {
+        let common_usernames = usernames.filter((currentItem) => {
+          if (currentItem.toLowerCase() == username_input_value) {
+            return currentItem;
+          }
+        });
+        if (common_usernames.length > 0) {
+          contentVisiblity(username_tick, warning_box, login_submit, true);
+        } else {
+          contentVisiblity(username_tick, warning_box, login_submit, false);
+          warning_box.textContent = "No username found";
+        }
+      } else {
+        username_tick.style.display = "none";
+        warning_box.style.display = "none";
+        login_submit.display = "none";
+      }
+      password_warning_box.style.display = "none";
+      login_form.style.display = "{{wrong_password}}" == 1 ? "flex" : "none";
+    });
+  </script>
+  <script src="../static/js/drag_drop_file.js"></script>
+</body>
+
 </html>

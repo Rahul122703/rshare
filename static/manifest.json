@@ -1,0 +1,63 @@
+{
+  "name": "ShareSense",
+  "short_name": "ShareSense",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#4CAF50",
+  "background_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/static/images/share192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/images/share512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "share_target": {
+    "action": "/upload_file",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "files": [
+        {
+          "name": "file",
+          "accept": ["*/*"]
+        }
+      ]
+    }
+  },
+  "shortcuts": [
+    {
+      "name": "Upload File",
+      "short_name": "Upload",
+      "description": "Upload a new file",
+      "url": "/upload",
+      "icons": [
+        {
+          "src": "/static/images/upload.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Recent Uploads",
+      "short_name": "Recent",
+      "description": "View recently uploaded files",
+      "url": "/recent",
+      "icons": [
+        {
+          "src": "/static/images/recent.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
