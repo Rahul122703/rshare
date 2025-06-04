@@ -1,19 +1,20 @@
 # Document Sharing Platform
 
-Easily share a variety of content in almost any document format with this Flask-based web app. You can share files quickly and securely, with the option to share files publicly or keep them private. Plus, you no longer need to log in to WhatsApp on your desktop to share files—this platform handles it 
+Easily share a variety of content in almost any document format with this Flask-based web app. You can share files quickly and securely, with the option to share files publicly or keep them private. Plus, you no longer need to log in to WhatsApp on your desktop to share files—this platform handles it
 all for you!
 
-**Hosted Link**: [smartshare.onrender.com](https://smartshare.onrender.com)
+**Hosted Link**: [sharesense.onrender.com](https://sharesense.onrender.com)
 
 ## Features
 
 ### Two Ways to Share
 
-1. **Share Without Login (General Section)**  
+1. **Share Without Login (General Section)**
+
    - Paste your formatted content and click "Upload" to add it to the general section.
    - To retrieve the latest uploads, click the "Receive" button.
 
-2. **Share by Logging In (Personal Section)**  
+2. **Share by Logging In (Personal Section)**
    - Log in to upload and manage your personal files securely.
    - Click "Your Data" to view and manage all your uploaded files.
 
@@ -67,3 +68,4 @@ The platform supports almost any document type!
     source venv/bin/activate  # On Windows use `venv\Scripts\activate`
     pip install -r requirements.txt
     flask run
+   ```
