@@ -211,7 +211,9 @@ def index():
     # print("--------------index route is running---------")
     # if "username" not in session:
     #     current_user = None
-    return render_template("index.html")
+    #return render_template("index.html")
+    return redirect("https://sharebro.onrender.com")
+
 
 @application.route('/uploads/general/<filename>')
 def uploaded_general_file(filename):
